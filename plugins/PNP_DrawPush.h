@@ -6,9 +6,9 @@
 //
 // Calling trigger():
 //
-//    Saves the absolute value of the force value to pass on when it reaches the end, and
-//    causes a new cycle to begin from the start of the strip. If the original force was
-//    negative then the cycle is not repeated when it reaches the end of the display window.
+//    Saves the force value to pass on when it reaches the end, and causes a new cycle to begin
+//    from the start of the strip. If the original force was <= 0 then the cycle is not repeated
+//    when it reaches the end of the display window.
 //
 // Calling nextstep():
 //
@@ -68,7 +68,7 @@ public:
       curPos = 0;
       pixelNutSupport.sendForce(handle, myid, forceVal, pdraw);
     }
-    else if (forceVal >= 0)
+    else if (forceVal > 0)
     {
       doDraw = true;
       curPos = 0;
