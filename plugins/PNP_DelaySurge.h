@@ -1,6 +1,6 @@
 // What Effect Does:
 //
-//    Modulates the original delay value that has been set in the drawing property,
+//    Modulates the delay time property that has been set in the drawing property,
 //    such that any affected animation appears to surge in speed, then evenly slow
 //    down until it is back to its original speed.
 //

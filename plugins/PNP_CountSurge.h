@@ -1,9 +1,9 @@
 // What Effect Does:
 //
-//   Increasing force increases the pixel count effect property, which then slowly reverts
-//   back to the base value, which is set from the orginal value when first triggered.
-//   The number of steps it takes is 10 * the distance from the base value to the new
-//   value determined by the force when triggered.
+//    Increasing force increases the pixel count property, which then slowly reverts
+//    back to the base value, which is set from the orginal value when first triggered.
+//    The number of steps it takes is 10 * the distance from the base value to the new
+//    value determined by the force when triggered.
 //
 //    Note: if the original value has been set to 'C100' (full length), then no modulation
 //    is possible and this plugin will have no effect at all.
@@ -21,7 +21,7 @@
 //
 // Properties Affected:
 //
-//   pixCount - count value from 1...number-of-pixels
+//    pixCount - count value from 1...number-of-pixels
 //
 
 class PNP_CountSurge : public PixelNutPlugin
@@ -29,7 +29,7 @@ class PNP_CountSurge : public PixelNutPlugin
 public:
   byte gettype(void) const
   {
-    return PLUGIN_TYPE_PREDRAW | PLUGIN_TYPE_TRIGGER;
+    return PLUGIN_TYPE_PREDRAW | PLUGIN_TYPE_TRIGGER | PLUGIN_TYPE_USEFORCE;
   };
 
   void begin(byte id, uint16_t pixlen)

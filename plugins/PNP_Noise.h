@@ -1,6 +1,7 @@
 // What Effect Does:
 //
 //    Randomly sets pixels to the current color with a random brightness level.
+//    The number of pixels set each step is determined by the pixel count property.
 //
 // Calling trigger():
 //
@@ -14,7 +15,7 @@
 //
 //    degreeHue, pcentWhite - determines the color.
 //    pcentBright - determines the maximum brightness.
-//    pixCount - count of the number of times a random pixel is set each nextstep().
+//    pixCount - number of pixels set each nextstep().
 //
 // Properties Affected:
 //

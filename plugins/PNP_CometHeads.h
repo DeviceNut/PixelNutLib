@@ -4,17 +4,21 @@
 //    such that they either loop around the drawing window continuously, or disappear as 
 //    they "fall off" of the end of the window.
 //
-//    A "comet" is a series of pixels drawn with the current color hue/white properties that
-//    move down the drawing window, with the brighness highest at the "head", decreasing evenly
+//    A "comet" is a series of pixels drawn with the current color properties that moves
+//    down the drawing window, with the brighness highest at the "head", decreasing evenly
 //    to the "tail", thus creating the appearance of a "comet streaking through sky".
 //
 // Calling trigger():
 //
-//    The very first time this is called determines the mode: if the force is 0 then
-//    no comet is created and subsequent calls will not repeat, otherwise a comet is
-//    created and repeated. On subsequent calls a comet will be created unless the
-//    original force was 0 and the current force is negative, and will be repeated
-//    unless the original force was 0 or the force is negative.
+//    The very first time this is called determines the mode:
+//
+//    1) The original force is 0: nothing happens the first time. Subsequent calls
+//       cause a comet to be created but not repeated only if the force >= 0.
+//       This mode allows for one-shot comets if new forces are positive.
+//
+//    2) The original force is !0: The first time a comet is created and repeated.
+//       Subsequent calls will create a comet, which is repeated if the force >= 0.
+//       This mode allows for additional repetitive comets if new forces are positive.
 //
 // Sending a trigger:
 //
@@ -79,7 +83,7 @@ public:
       if (force == 0)
       {
         doit = false;
-        repMode = dorepeat = false;
+        repMode = false;
       }
       else repMode = true;
 

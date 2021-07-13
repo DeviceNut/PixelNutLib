@@ -1,7 +1,7 @@
 // What Effect Does:
 //
-//    Draws single pixels evenly separated, using the current drawing properties, moving
-//    them down the drawing window one pixel at a time, creating a "ferris wheel" effect.
+//    Draws evenly spaced pixels with the current color, shifting them
+//    down one pixel at a time, creating a "ferris wheel" effect.
 //
 // Calling trigger():
 //
@@ -13,8 +13,8 @@
 //
 // Properties Used:
 //
-//    pixCount - determines the number of spokes in the "wheel".
 //    r,g,b - the current color values.
+//    pixCount - determines the number of spokes in the "wheel".
 //
 // Properties Affected:
 //

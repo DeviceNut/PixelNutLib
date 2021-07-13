@@ -1,6 +1,7 @@
 // What Effect Does:
 //
-//    Draws block of the current color back and forth across the drawing window.
+//    Draws a block of pixels with the current color back and forth
+//    across the drawing window.
 //
 // Calling trigger():
 //
@@ -13,6 +14,7 @@
 //
 // Properties Used:
 //
+//    r,g,b - the current color values.
 //    pixCount - current value when nextstep() called determines size of the color block.
 //
 // Properties Affected:

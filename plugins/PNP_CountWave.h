@@ -1,8 +1,8 @@
 // What Effect Does:
 //
-//    Modulates the original pixel count value that has been set in the drawing
-//    properties with a cosine function, such that any affected animation track
-//    using the count value will have it lengthen and shorten, continuously.
+//    Modulates the pixel count property with a cosine function, such that any
+//    affected animation track using the count value will have it lengthen and
+//    shorten, continuously.
 //
 //    The count property is modulated up/down from the original value by half the
 //    total number of pixels, with the force determining how many steps are taken

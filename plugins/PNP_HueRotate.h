@@ -1,7 +1,8 @@
 // What Effect Does:
 //
-//    Rotates color hue around color wheel each drawing step, but doesn't change the whiteness
-//    or brightness. The amount of change is set each time a force is triggered.
+//    Rotates color hue around the color wheel on each drawing step, but doesn't change the
+//    whiteness or brightness. The amount of change that is made each time is determined by
+//    the trigger force.
 //
 //    The more force the more degrees the hue changes each step. If force is 0 then the color
 //    won't change at all. At maximum force the number of steps it takes to cycle through the

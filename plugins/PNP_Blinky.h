@@ -15,7 +15,8 @@
 //
 // Properties Used:
 //
-//    pixCount - current value is the counter for the number of pixels to clear and set.
+//    r,g,b - the current color values.
+//    pixCount - number of pixels set and cleared each nextstep().
 //
 // Properties Affected:
 //

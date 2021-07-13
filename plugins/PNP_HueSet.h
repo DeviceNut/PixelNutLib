@@ -1,7 +1,7 @@
 // What Effect Does:
 //
 //    Directly sets the current color hue from the force value when triggered. As the force increases
-//    the color hue changes from red->green->blue. A value of 0 set the color to red, as does the maximum.
+//    the color hue changes from red->green->blue. A value of 0 sets the color to red, as does the maximum.
 //
 //    The whiteness and brightness are unaffected.
 //

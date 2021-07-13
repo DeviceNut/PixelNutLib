@@ -1,6 +1,7 @@
 // What Effect Does:
 //
-//    Expands/contracts drawing window centered on the middle of the pixel strip.
+//    Expands/contracts the drawing window continuously, centered on the
+//    middle of the window.
 //
 // Calling trigger():
 //
@@ -37,6 +38,8 @@ public:
     headPos = tailPos = pixCenter;
     if (!(pixlen & 1)) --headPos;
     forceVal = 0;
+
+    // TODO: save original start/end values and use as limits
   }
 
   void trigger(PixelNutHandle handle, PixelNutSupport::DrawProps *pdraw, short force)

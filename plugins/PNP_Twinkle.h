@@ -1,6 +1,7 @@
 // What Effect Does:
 //
 //    Scales brightness levels individually up and down to create a twinkle effect.
+//    The number of pixels affected is determined by the pixel count property.
 //    Allocates 2 bytes of memory per number of pixels.
 //
 // Calling trigger():
@@ -15,7 +16,7 @@
 // Properties Used:
 //
 //    r,g,b - the current color values.
-//    pixCount - determines how many pixels used in effect.
+//    pixCount - determines how many pixels are changed.
 //
 // Properties Affected:
 //

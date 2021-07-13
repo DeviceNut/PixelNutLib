@@ -16,6 +16,7 @@
 //
 // Properties Used:
 //
+//    r,g,b - the current color values.
 //    pixCount - determines how many steps are taken in each wave.
 //
 // Properties Affected:

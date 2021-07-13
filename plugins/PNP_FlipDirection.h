@@ -1,6 +1,6 @@
 // What Effect Does:
 //
-//    Toggles the drawing direction on each trigger.
+//    Toggles the drawing direction property on each trigger.
 //
 // Calling trigger():
 //
