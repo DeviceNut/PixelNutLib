@@ -13,7 +13,7 @@ class PixelNutEngine
 {
 public:
 
-  enum Status // Returned value from 'execCommand()' call below
+  enum Status // Returned value from 'execCmdStr()' call below
   {
     Status_Success=0,
     Status_Error_BadVal,        // invalid value used in command
@@ -26,13 +26,13 @@ public:
   // to particular tracks, such that changing those controls only affects tracks that have
   // the corresponding bit set.
   //
-  // In addition, when the external property mode is enabled with 'setExternPropertyMode()',
+  // In addition, when the external property mode is enabled with 'setPropertyMode()',
   // a set property bit prevents any predraw effect from changing that property for that track.
   // Otherwise, a set bit allows modification by both external and internal (predraw) sources.
   //
-  // By default (no bits set), only predraw effects can change the properties.
+  // By default (no bits set), only predraw effects can change the drawing properties.
   enum ExtControlBit
-  {                                 // corresponds to the effect property:
+  {                                 // corresponds to the drawing property:
     ExtControlBit_DegreeHue  = 1,   //  degreeHue
     ExtControlBit_PcentWhite = 2,   //  pcentWhite
     ExtControlBit_PixCount   = 4,   //  pixCount
@@ -52,6 +52,17 @@ public:
 
   void setDelayOffset(int8_t msecs) { delayOffset = msecs; }
   int8_t getDelayOffset() { return delayOffset; }
+
+  void setFirstPosition(int16_t pixpos)
+  {
+    if (pixpos < 0) pixpos = 0;
+    if (numPixels <= pixpos) pixpos = numPixels-1;
+    firstPixel = pixpos;
+  }
+  int16_t getFirstPosition() { return firstPixel; }
+
+  void setDirection(bool goup) { goUpwards = goup; }
+  bool getDirection() { return goUpwards; }
 
   // Sets the color properties for tracks that have set either the ExtControlBit_DegreeHue
   // or ExtControlBit_PcentWhite bits. These values can be individually controlled. The
@@ -90,7 +101,10 @@ public:
   virtual Status execCmdStr(char *cmdstr);
 
   // Pops one or more layers from the stack
-  virtual void popPluginStack(int count=0);
+  //virtual void popPluginStack(int count=0);
+
+  // Pops off all layers from the stack
+  virtual void clearStack(void);
 
   // Updates current effect: returns true if the pixels have changed and should be redisplayed.
   virtual bool updateEffects(void);
@@ -116,7 +130,7 @@ protected:
     short trigForce;                            // amount of force to apply (-1 for random)
     bool trigActive;                            // true if this layer has been triggered at least once
     bool trigExtern;                            // true if external triggering is enabled for this layer
-    byte trigSource;                            // what other layer can trigger this layer (-1 for none)
+    byte trigSource;                            // what other layer can trigger this layer (255 for none)
 
     byte track;                                 // index into properties stack for plugin
     PixelNutPlugin *pPlugin;                    // pointer to the created plugin object
@@ -151,9 +165,10 @@ protected:
 
   uint32_t timePrevUpdate = 0;                  // time of previous call to update
 
+  uint16_t firstPixel = 0;                      // offset to the start of the drawing array
   bool goUpwards = true;                        // true to draw from start to end, else reverse
+  
   uint16_t numPixels;                           // total number of pixels in output display
-  uint16_t firstPixel;                          // offset to the start of the drawing array
   byte *pDisplayPixels;                         // pointer to actual output display pixels
 
   uint16_t segOffset;                           // offset in output buffer of current segment
