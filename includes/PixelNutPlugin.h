@@ -14,7 +14,7 @@
 
                                         // these are mutually exclusive:
 #define PLUGIN_TYPE_REDRAW        0x01  // creates pixel values from settings, else
-                                  0x02  // alters those effect settings before drawing
+                                        // alters those effect settings before drawing
 
                                         // any combination of these is valid:
 #define PLUGIN_TYPE_DIRECTION     0x08  // changing direction changes effect
