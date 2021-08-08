@@ -86,64 +86,6 @@ static uint16_t GetNumValue(char *str, int curval, uint16_t maxval)
 // completely empty after layers and tracks have been added by repeated use of the Pop(P) command.
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// pop one or more plugins from the stack
-// if count==0 then completely clear the stacks
-/*
-void PixelNutEngine::popPluginStack(int count)
-{
-  if (indexLayerStack < 0) return; // do nothing
-
-  if (!count) count = indexLayerStack + 1;
-
-  #if DEBUG_OUTPUT
-  DBGOUT((F("Pop %d layers: layer=%d track=%d"), count, indexLayerStack, indexTrackStack));
-  for (int i = 0; i <= indexLayerStack; ++i)
-    DBGOUT((F("  Layer %d: track=%d"), i, pluginLayers[i].track));
-  #endif
-
-  while (count--)
-  {
-    // check if must remove a track from the stack as well
-    // by determining if no other layers use it
-    bool dopop = true;
-
-    for (int i = 0; i < indexLayerStack; ++i) // don't include this layer
-    {
-      if (indexTrackStack == pluginLayers[i].track)
-      {
-        dopop = false;
-        break;
-      }
-    }
-
-    if (dopop)
-    {
-      if (pluginTracks[indexTrackStack].pRedrawBuff != NULL)
-      {
-        DBGOUT((F("Freeing pixel buffer: track=%d"), indexTrackStack));
-        free(pluginTracks[indexTrackStack].pRedrawBuff);
-      }
-
-      if (indexTrackEnable >= indexTrackStack)
-        --indexTrackEnable;
-
-      --indexTrackStack;
-    }
-
-    delete pluginLayers[indexLayerStack].pPlugin;
-    --indexLayerStack; // pop off a layer
-  }
-
-  DBGOUT((F("New stack levels: layer=%d track=%d"), indexLayerStack, indexTrackStack));
-
-  if (indexLayerStack < 0) // everything popped off
-  {
-    segOffset = 0; // reset the segment limits
-    segCount = numPixels;
-    memset(pDisplayPixels, 0, (numPixels*3)); // must clear if nothing will be drawn
-  }
-}
-*/
 void PixelNutEngine::clearStack(void)
 {
   DBGOUT((F("Clear stack: layer=%d track=%d"), indexLayerStack, indexTrackStack));
@@ -169,9 +111,9 @@ void PixelNutEngine::clearStack(void)
     }
   }
 
-  indexTrackEnable = 0;
-  indexLayerStack = 0;
-  indexLayerStack = 0;
+  indexTrackEnable = -1;
+  indexLayerStack  = -1;
+  indexTrackStack  = -1;
 
   segOffset = 0; // reset the segment limits
   segCount = numPixels;
@@ -196,7 +138,7 @@ PixelNutEngine::Status PixelNutEngine::NewPluginLayer(int plugin, int segindex, 
   // determine if must allocate buffer for track, or is a filter plugin
   bool newtrack = (pPlugin->gettype() & PLUGIN_TYPE_REDRAW);
 
-  DBGOUT((F("Track=%d Layer=%d Track=%d"), newtrack, indexLayerStack, indexTrackStack));
+  DBGOUT((F("NewTrack=%d Layer=%d Track=%d"), newtrack, indexLayerStack, indexTrackStack));
 
   // check if:
   // a filter plugin and there is at least one redraw plugin, or
@@ -279,7 +221,6 @@ PixelNutEngine::Status PixelNutEngine::NewPluginLayer(int plugin, int segindex, 
     memset(p, 0, numbytes);
     pluginTracks[indexTrackStack].pRedrawBuff = p;
   }
-  else pluginTracks[indexTrackStack].pRedrawBuff = NULL;
 
   return Status_Success;
 }
@@ -512,8 +453,17 @@ PixelNutEngine::Status PixelNutEngine::execCmdStr(char *cmdstr)
     {
       segCount = GetNumValue(cmd+1, 0, MAX_PERCENTAGE) * numPixels;
       segCount /= MAX_PERCENTAGE;
-      if (segCount > (numPixels-segOffset)) segCount = (numPixels-segOffset);
+
+      if (segCount > (numPixels-segOffset))
+          segCount = (numPixels-segOffset);
+
       ++segindex;
+
+      if (segCount == 0)
+      {
+        DBGOUT((F(">> Cmd=%s force segCount to 1 (segOffest=%d)"), cmd, segOffset));
+        segCount = 1;
+      }
     }
     else if (cmd[0] == 'L') // sets position of the first pixel to start drawing by percent
     {
@@ -556,14 +506,7 @@ PixelNutEngine::Status PixelNutEngine::execCmdStr(char *cmdstr)
       }
       else status = Status_Error_BadVal;
     }
-    /*
     else if (cmd[0] == 'P') // Pop one or more plugins from the stack ('P' is same as 'P0': pop all)
-    {
-      popPluginStack( GetNumValue(cmd+1, 0, indexTrackStack+1) );
-      timePrevUpdate = 0; // redisplay pixels after being cleared
-    }
-    */
-    else if (cmd[0] == 'P') // clear the stack
     {
       clearStack();
       timePrevUpdate = 0; // redisplay pixels after being cleared

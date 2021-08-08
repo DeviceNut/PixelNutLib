@@ -100,9 +100,6 @@ public:
   // An empty string (or one with only spaces), is ignored.
   virtual Status execCmdStr(char *cmdstr);
 
-  // Pops one or more layers from the stack
-  //virtual void popPluginStack(int count=0);
-
   // Pops off all layers from the stack
   virtual void clearStack(void);
 
