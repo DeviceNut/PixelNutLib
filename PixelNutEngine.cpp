@@ -445,25 +445,25 @@ PixelNutEngine::Status PixelNutEngine::execCmdStr(char *cmdstr)
 
     if (cmd[0] == 'J') // sets offset into output display of the current segment by percent
     {
-      segOffset = GetNumValue(cmd+1, 0, MAX_PERCENTAGE) * numPixels;
-      segOffset /= MAX_PERCENTAGE;
-      if (segOffset > (numPixels-1)) segOffset = (numPixels-1);
-    }
-    else if (cmd[0] == 'K') // sets number of pixels in the current segment by percent
-    {
-      segCount = GetNumValue(cmd+1, 0, MAX_PERCENTAGE) * numPixels;
-      segCount /= MAX_PERCENTAGE;
+      segOffset = (GetNumValue(cmd+1, 0, MAX_PERCENTAGE) * (numPixels-1)) / MAX_PERCENTAGE;
 
       if (segCount > (numPixels-segOffset))
           segCount = (numPixels-segOffset);
+    }
+    else if (cmd[0] == 'K') // sets number of pixels in the current segment by percent
+    {
+      segCount = (GetNumValue(cmd+1, 0, MAX_PERCENTAGE) * numPixels) / MAX_PERCENTAGE;
 
-      ++segindex;
+      if (segCount > (numPixels-segOffset))
+          segCount = (numPixels-segOffset);
 
       if (segCount == 0)
       {
         DBGOUT((F(">> Cmd=%s force segCount to 1 (segOffest=%d)"), cmd, segOffset));
         segCount = 1;
       }
+
+      ++segindex;
     }
     else if (cmd[0] == 'L') // sets position of the first pixel to start drawing by percent
     {
