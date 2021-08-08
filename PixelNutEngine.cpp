@@ -235,7 +235,7 @@ void PixelNutEngine::triggerLayer(byte layer, short force)
   int track = pLayer->track;
   PluginTrack *pTrack = &pluginTracks[track];
 
-  bool predraw = (pLayer->pPlugin->gettype() & PLUGIN_TYPE_PREDRAW);
+  bool predraw = !(pLayer->pPlugin->gettype() & PLUGIN_TYPE_REDRAW);
 
   DBGOUT((F("Trigger: layer=%d track=%d(L%d) force=%d"), layer, track, pTrack->layer, force));
 
@@ -726,7 +726,7 @@ bool PixelNutEngine::updateEffects(void)
     // call all of the predraw effects associated with this track
     for (int j = 0; j <= indexLayerStack; ++j)
       if ((pluginLayers[j].track == i) && pluginLayers[j].trigActive &&
-          (pluginLayers[j].pPlugin->gettype() & PLUGIN_TYPE_PREDRAW))
+          !(pluginLayers[j].pPlugin->gettype() & PLUGIN_TYPE_REDRAW))
             pluginLayers[j].pPlugin->nextstep(this, &pTrack->draw);
 
     if (externPropMode) RestorePropVals(pTrack, pixCount, degreeHue, pcentWhite);

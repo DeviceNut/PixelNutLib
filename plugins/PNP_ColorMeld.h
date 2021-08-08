@@ -26,7 +26,7 @@ class PNP_ColorMeld : public PixelNutPlugin
 public:
   byte gettype(void) const
   {
-    return PLUGIN_TYPE_PREDRAW | PLUGIN_TYPE_TRIGGER | PLUGIN_TYPE_NEGFORCE | PLUGIN_TYPE_SENDFORCE;
+    return PLUGIN_TYPE_TRIGGER | PLUGIN_TYPE_NEGFORCE | PLUGIN_TYPE_SENDFORCE;
   };
 
   void begin(byte id, uint16_t pixlen)

@@ -40,7 +40,7 @@ class PNP_BrightSurge : public PixelNutPlugin
 public:
   byte gettype(void) const
   {
-    return PLUGIN_TYPE_PREDRAW | PLUGIN_TYPE_TRIGGER | PLUGIN_TYPE_USEFORCE;
+    return PLUGIN_TYPE_TRIGGER | PLUGIN_TYPE_USEFORCE;
   };
 
   void begin(byte id, uint16_t pixlen)

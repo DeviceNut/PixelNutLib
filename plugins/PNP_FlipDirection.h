@@ -24,7 +24,7 @@ class PNP_FlipDirection : public PixelNutPlugin
 public:
   byte gettype(void) const
   {
-    return PLUGIN_TYPE_PREDRAW | PLUGIN_TYPE_TRIGGER;
+    return PLUGIN_TYPE_TRIGGER;
   };
 
   void trigger(PixelNutHandle handle, PixelNutSupport::DrawProps *pdraw, short force)

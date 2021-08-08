@@ -42,7 +42,7 @@ class PNP_BrightWave : public PixelNutPlugin
 public:
   byte gettype(void) const
   {
-    return PLUGIN_TYPE_PREDRAW | PLUGIN_TYPE_DIRECTION |
+    return PLUGIN_TYPE_DIRECTION |
            PLUGIN_TYPE_TRIGGER | PLUGIN_TYPE_USEFORCE  | PLUGIN_TYPE_SENDFORCE;
   };
 
