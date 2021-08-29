@@ -30,7 +30,7 @@ getPropertyWhite	KEYWORD2
 getPropertyCount	KEYWORD2
 triggerForce	KEYWORD2
 execCmdStr	KEYWORD2
-popPluginStack	KEYWORD2
+clearStack	KEYWORD2
 updateEffects	KEYWORD2
 
 msgFormat	KEYWORD2

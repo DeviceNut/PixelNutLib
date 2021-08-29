@@ -9,7 +9,7 @@
 
 extern PluginFactory *pPluginFactory; // use externally declared pointer to instance
 
-#define DEBUG_OUTPUT 0 // 1 to debug this file
+#define DEBUG_OUTPUT 1 // 1 to debug this file
 #if DEBUG_OUTPUT
 #define DBG(x) x
 #define DBGOUT(x) pixelNutSupport.msgFormat x
@@ -515,6 +515,7 @@ PixelNutEngine::Status PixelNutEngine::execCmdStr(char *cmdstr)
     {
       curlayer = GetNumValue(cmd+1, indexLayerStack); // returns -1 if not within range
       if (curlayer < 0) curlayer = indexLayerStack;
+      curtrack = pluginLayers[curlayer].track;
     }
     else if (pdraw != NULL)
     {
