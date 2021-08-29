@@ -448,14 +448,20 @@ PixelNutEngine::Status PixelNutEngine::execCmdStr(char *cmdstr)
       segOffset = (GetNumValue(cmd+1, 0, MAX_PERCENTAGE) * (numPixels-1)) / MAX_PERCENTAGE;
 
       if (segCount > (numPixels-segOffset))
-          segCount = (numPixels-segOffset);
+      {
+        segCount = (numPixels-segOffset);
+        DBGOUT((F(">> Cmd=%s force segCount to %d)"), cmd, segOffset));
+      }
     }
     else if (cmd[0] == 'K') // sets number of pixels in the current segment by percent
     {
       segCount = (GetNumValue(cmd+1, 0, MAX_PERCENTAGE) * numPixels) / MAX_PERCENTAGE;
 
       if (segCount > (numPixels-segOffset))
-          segCount = (numPixels-segOffset);
+      {
+        segCount = (numPixels-segOffset);
+        DBGOUT((F(">> Cmd=%s force segCount to %d)"), cmd, segOffset));
+      }
 
       if (segCount == 0)
       {
@@ -737,9 +743,8 @@ bool PixelNutEngine::updateEffects(void)
     pluginLayers[pTrack->layer].pPlugin->nextstep(this, &pTrack->draw);
     pDrawPixels = pDisplayPixels; // restore to default (display buffer)
 
-    //DBGOUT((F("delay=%d.%d"), pTrack->draw.msecsDelay, delayOffset));
-
     short addtime = pTrack->draw.msecsDelay + delayOffset;
+    //DBGOUT((F("delay=%d.%d.%d"), pTrack->draw.msecsDelay, delayOffset, addtime));
     if (addtime <= 0) addtime = 1; // must advance at least by 1 each time
     pTrack->msTimeRedraw = timePrevUpdate + addtime;
 
