@@ -61,9 +61,6 @@ public:
   }
   int16_t getFirstPosition() { return firstPixel; }
 
-  void setDirection(bool goup) { goUpwards = goup; }
-  bool getDirection() { return goUpwards; }
-
   // Sets the color properties for tracks that have set either the ExtControlBit_DegreeHue
   // or ExtControlBit_PcentWhite bits. These values can be individually controlled. The
   // 'hue_degree' is a value from 0...MAX_DEGREES_CIRCLE, and the 'white_percent' value
