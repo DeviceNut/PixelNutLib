@@ -51,7 +51,7 @@ public:
   byte getMaxBrightness() { return pcentBright; }
 
   void setDelayOffset(byte msecs) { delayOffset = msecs; }
-  byte getDelayOffset() { return delayOffset; }
+  int8_t getDelayOffset() { return delayOffset; }
 
   void setFirstPosition(int16_t pixpos)
   {
@@ -110,7 +110,8 @@ public:
 protected:
 
   byte pcentBright = MAX_PERCENTAGE;            // max percent brightness to apply to each effect
-  byte delayOffset = 0;                         // additional delay to add to each effect (msecs)
+  int8_t delayOffset = 0;                         // additional delay to add to each effect (msecs)
+                                                // this is kept to be +/- 'DELAY_RANGE'
 
   typedef struct ATTR_PACKED // 18-20 bytes
   {
