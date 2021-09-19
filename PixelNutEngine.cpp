@@ -115,7 +115,7 @@ void PixelNutEngine::clearStack(void)
   indexLayerStack  = -1;
   indexTrackStack  = -1;
 
-  segOffset = 0; // reset the segment limits
+  segOffset = 0; // reset the track limits
   segCount = numPixels;
 
   // clear all pixels too
@@ -123,7 +123,7 @@ void PixelNutEngine::clearStack(void)
 }
 
 // return false if unsuccessful for any reason
-PixelNutEngine::Status PixelNutEngine::NewPluginLayer(int plugin, int segindex, int pix_start, int pix_count)
+PixelNutEngine::Status PixelNutEngine::NewPluginLayer(int plugin, int segindex)
 {
   // check if can add another layer to the stack
   if ((indexLayerStack+1) >= maxPluginLayers)
@@ -172,12 +172,12 @@ PixelNutEngine::Status PixelNutEngine::NewPluginLayer(int plugin, int segindex, 
     pTrack->ctrlBits  = 0;  // allow overwriting by default
     pTrack->disable   = 0;
     pTrack->segIndex  = segindex;
-    pTrack->dspCount  = pix_count;
-    pTrack->dspOffset = pix_start;
+    pTrack->segOffset = segOffset;
+    pTrack->segCount  = segCount;
 
     // initialize track drawing properties: some must be set with user commands
     memset(&pTrack->draw, 0, sizeof(PixelNutSupport::DrawProps));
-    pTrack->draw.pixEnd        = pix_count-1;     // set initial window (start was memset)
+    pTrack->draw.pixLen        = segCount  ;      // set initial window (start was memset)
     pTrack->draw.pcentBright   = MAX_PERCENTAGE;  // start off with max brightness
     pTrack->draw.pixCount      = 1;               // default count is 1
     // default hue is 0(red), white is 0, delay is 0
@@ -199,11 +199,11 @@ PixelNutEngine::Status PixelNutEngine::NewPluginLayer(int plugin, int segindex, 
         plugin, pPlugin->gettype(), indexLayerStack, indexTrackStack));
 
   // begin new plugin, but will not be drawn until triggered
-  pPlugin->begin(indexLayerStack, pix_count); // TODO: return false if failed
+  pPlugin->begin(indexLayerStack, segCount); // TODO: return false if failed
 
   if (newtrack) // wait to do this until after any memory allocation in plugin
   {
-    int numbytes = pix_count*3;
+    int numbytes = segCount*3;
     byte *p = (byte*)malloc(numbytes);
 
     if (p == NULL)
@@ -373,7 +373,7 @@ void PixelNutEngine::SetPropCount(void)
 
     if (pTrack->ctrlBits & ExtControlBit_PixCount)
     {
-      uint16_t count = pixelNutSupport.mapValue(externPcentCount, 0, MAX_PERCENTAGE, 1, pTrack->dspCount);
+      uint16_t count = pixelNutSupport.mapValue(externPcentCount, 0, MAX_PERCENTAGE, 1, pTrack->segCount);
       DBGOUT((F("  %d) %d => %d"), i, pTrack->draw.pixCount, count));
       pTrack->draw.pixCount = count;
     }
@@ -418,7 +418,7 @@ void PixelNutEngine::RestorePropVals(PluginTrack *pTrack, uint16_t pixCount, uin
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Main command handler and pixel buffer renderer
-// Uses all alpha characters except: R,S
+// Uses all alpha characters except: L,R,S,Z
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 PixelNutEngine::Status PixelNutEngine::execCmdStr(char *cmdstr)
@@ -427,7 +427,7 @@ PixelNutEngine::Status PixelNutEngine::execCmdStr(char *cmdstr)
 
   int curlayer = indexLayerStack;
   int curtrack = indexTrackStack;
-  int segindex = -1;
+  int segindex = -1; // logical segment index
 
   for (int i = 0; cmdstr[i]; ++i) // convert to upper case
     cmdstr[i] = toupper(cmdstr[i]);
@@ -437,45 +437,24 @@ PixelNutEngine::Status PixelNutEngine::execCmdStr(char *cmdstr)
   if (cmd == NULL) return Status_Success; // ignore empty line
   do
   {
-    PixelNutSupport::DrawProps *pdraw;
+    PixelNutSupport::DrawProps *pdraw = NULL;
     if (curtrack >= 0) pdraw = &pluginTracks[curtrack].draw;
-    else pdraw = NULL;
 
-    DBGOUT((F(">> Cmd=%s len=%d"), cmd, strlen(cmd)));
+    DBGOUT((F(">> Cmd=%s len=%d curtrack=%d"), cmd, strlen(cmd), curtrack));
 
+    /*
     if (cmd[0] == 'J') // sets offset into output display of the current segment by percent
     {
       segOffset = (GetNumValue(cmd+1, 0, MAX_PERCENTAGE) * (numPixels-1)) / MAX_PERCENTAGE;
-
-      if (segCount > (numPixels-segOffset))
-      {
-        segCount = (numPixels-segOffset);
-        DBGOUT((F(">> Cmd=%s force segCount to %d)"), cmd, segOffset));
-      }
+      DBGOUT((F(">> segCount=%d segOffset=%d"), segCount, segOffset));
     }
     else if (cmd[0] == 'K') // sets number of pixels in the current segment by percent
     {
-      segCount = (GetNumValue(cmd+1, 0, MAX_PERCENTAGE) * numPixels) / MAX_PERCENTAGE;
-
-      if (segCount > (numPixels-segOffset))
-      {
-        segCount = (numPixels-segOffset);
-        DBGOUT((F(">> Cmd=%s force segCount to %d)"), cmd, segOffset));
-      }
-
-      if (segCount == 0)
-      {
-        DBGOUT((F(">> Cmd=%s force segCount to 1 (segOffest=%d)"), cmd, segOffset));
-        segCount = 1;
-      }
-
-      ++segindex;
+      segCount = ((GetNumValue(cmd+1, 0, MAX_PERCENTAGE) * (numPixels-1)) / MAX_PERCENTAGE) + 1;
+      DBGOUT((F(">> segCount=%d segOffset=%d"), segCount, segOffset));
     }
-    else if (cmd[0] == 'L') // sets position of the first pixel to start drawing by percent
-    {
-      firstPixel = GetNumValue(cmd+1, 0, MAX_PERCENTAGE) * (numPixels-1);
-    }
-    else if (cmd[0] == 'X') // sets offset into output display of the current segment by index
+    */
+    if (cmd[0] == 'X') // sets offset into output display of the current segment by index
     {
       int pos = GetNumValue(cmd+1, numPixels-1); // returns -1 if not within range
       if (pos >= 0) segOffset = pos;
@@ -492,29 +471,29 @@ PixelNutEngine::Status PixelNutEngine::execCmdStr(char *cmdstr)
       }
       else segCount = numPixels;
     }
-    else if (cmd[0] == 'Z') // sets position of the first pixel to start drawing by index
-    {
-      int pos = GetNumValue(cmd+1, numPixels-1); // returns -1 if not within range
-      firstPixel = (pos >= 0) ? pos : 0;         // set to 0 if out of range
-    }
     else if (cmd[0] == 'E') // add a plugin Effect to the stack ("E" is an error)
     {
       int plugin = GetNumValue(cmd+1, MAX_PLUGIN_VALUE); // returns -1 if not within range
       if (plugin >= 0)
       {
-        status = NewPluginLayer(plugin, ((segindex < 0) ? 0 : segindex), segOffset, segCount);
+        status = NewPluginLayer(plugin, ((segindex < 0) ? 0 : segindex));
         if (status == Status_Success)
         {
           curtrack = indexTrackStack;
           curlayer = indexLayerStack;
         }
         else { DBGOUT((F("Cannot add plugin #%d: layer=%d track=%d"), plugin, indexLayerStack, indexTrackStack)); }
+
+        // setup next segment limits
+        segOffset += segCount;
+        segCount = numPixels - segOffset;
       }
       else status = Status_Error_BadVal;
     }
     else if (cmd[0] == 'P') // Pop one or more plugins from the stack ('P' is same as 'P0': pop all)
     {
       clearStack();
+      curlayer = curtrack = -1; // must reset these after clear
       timePrevUpdate = 0; // redisplay pixels after being cleared
     }
     else if (cmd[0] == 'M') // set plugin layer to Modify ('M' uses top of stack)
@@ -527,6 +506,18 @@ PixelNutEngine::Status PixelNutEngine::execCmdStr(char *cmdstr)
     {
       switch (cmd[0])
       {
+        case 'J': // sets offset into output display of the current track by percent
+        {
+          pdraw->pixStart = (GetNumValue(cmd+1, 0, MAX_PERCENTAGE) * (numPixels-1)) / MAX_PERCENTAGE;
+          DBGOUT((F(">> Start=%d Len=%d"), pdraw->pixStart, pdraw->pixLen));
+          break;
+        }
+        case 'K': // sets number of pixels in the current track by percent
+        {
+          pdraw->pixLen = ((GetNumValue(cmd+1, 0, MAX_PERCENTAGE) * (numPixels-1)) / MAX_PERCENTAGE) + 1;
+          DBGOUT((F(">> Start=%d Len=%d"), pdraw->pixStart, pdraw->pixLen));
+          break;
+        }
         case 'U': // set the pixel direction in the current track properties ("U1" is default(up), "U" toggles value)
         {
           pdraw->goUpwards = GetBoolValue(cmd+1, pdraw->goUpwards);
@@ -559,10 +550,11 @@ PixelNutEngine::Status PixelNutEngine::execCmdStr(char *cmdstr)
         {
           short curvalue = ((pdraw->pixCount * MAX_PERCENTAGE) / segCount);
           short percent = GetNumValue(cmd+1, curvalue, MAX_PERCENTAGE);
+          DBGOUT((F("CurCount: %d==%d%% SegCount=%d"), pdraw->pixCount, curvalue, segCount));
 
           // map value into a pixel count, dependent on the actual number of pixels
           pdraw->pixCount = pixelNutSupport.mapValue(percent, 0, MAX_PERCENTAGE, 1, segCount);
-          DBGOUT((F("PixCount=%d"), pdraw->pixCount));
+          DBGOUT((F("PixCount: %d==%d%%"), pdraw->pixCount, percent));
           break;
         }
         case 'D': // set the delay in the current track properties ("D" has no effect)
@@ -592,7 +584,7 @@ PixelNutEngine::Status PixelNutEngine::execCmdStr(char *cmdstr)
 
               if (bits & ExtControlBit_PixCount)
               {
-                pdraw->pixCount = pixelNutSupport.mapValue(externPcentCount, 0, MAX_PERCENTAGE, 1, pluginTracks[curtrack].dspCount);
+                pdraw->pixCount = pixelNutSupport.mapValue(externPcentCount, 0, MAX_PERCENTAGE, 1, pluginTracks[curtrack].segCount);
                 DBGOUT((F("SetExtern: track=%d count=%d"), curtrack, pdraw->pixCount));
               }
 
@@ -764,12 +756,13 @@ bool PixelNutEngine::updateEffects(void)
       if (!(pluginLayers[pTrack->layer].pPlugin->gettype() & PLUGIN_TYPE_REDRAW))
         continue;
 
-      // combine contents of buffer window with actual pixel array:
       short pixlast = numPixels-1;
-      short pixstart = firstPixel + pTrack->dspOffset + pTrack->draw.pixStart;
+      short pixstart = firstPixel + pTrack->segOffset + pTrack->draw.pixStart;
+      //DBGOUT((F("%d PixStart: %d == %d+%d+%d"), pTrack->draw.goUpwards, pixstart, firstPixel, pTrack->segOffset, pTrack->draw.pixStart));
       if (pixstart > pixlast) pixstart -= (pixlast+1);
 
-      short pixend = pixstart + (pTrack->draw.pixEnd - pTrack->draw.pixStart);
+      short pixend = pixstart + pTrack->draw.pixLen - 1;
+      //DBGOUT((F("%d PixEnd:  %d == %d+%d-1"), pTrack->draw.goUpwards, pixend, pixstart, pTrack->draw.pixLen));
       if (pixend > pixlast) pixend -= (pixlast+1);
 
       short pix = (pTrack->draw.goUpwards ? pixstart : pixend);
@@ -782,6 +775,7 @@ bool PixelNutEngine::updateEffects(void)
 
         if (pTrack->draw.orPixelValues)
         {
+          // combine contents of buffer window with actual pixel array
           pDisplayPixels[x+0] |= pTrack->pRedrawBuff[y+0];
           pDisplayPixels[x+1] |= pTrack->pRedrawBuff[y+1];
           pDisplayPixels[x+2] |= pTrack->pRedrawBuff[y+2];
@@ -825,6 +819,7 @@ bool PixelNutEngine::updateEffects(void)
           }
         }
         y += 3;
+        if (y >= (pixlast*3)) y = 0;
       }
     }
 

@@ -34,5 +34,7 @@ public:
     pdraw->degreeHue  = random(0, MAX_DEGREES_HUE+1);
     pdraw->pcentWhite = random(0, 60); // keep under 60% white
     pixelNutSupport.makeColorVals(pdraw);
+
+    //pixelNutSupport.msgFormat(F("ColorRandom: hue=%d white=%d"), pdraw->degreeHue, pdraw->pcentWhite);
   }
 };

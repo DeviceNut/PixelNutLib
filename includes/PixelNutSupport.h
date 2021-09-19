@@ -71,9 +71,8 @@ public:
   // properties that can be modified at any time by commands/plugins:
   typedef struct ATTR_PACKED // 14 bytes
   {
-      uint16_t pixStart, pixEnd;  // start/end of range of pixels to be drawn (0...)
-                                  // allows plugins to adjust range of pixels to be drawn
-      uint16_t pixCount;          // number of pixels to actually use in this range
+      uint16_t pixStart, pixLen;  // start/length of range of pixels to be drawn (0...)
+      uint16_t pixCount;          // pixel count property, not related to above extent
 
       uint16_t degreeHue;         // hue in degrees (0-MAX_DEGREES_HUE)
       byte pcentWhite;            // percent whiteness (0-MAX_PERCENTAGE)

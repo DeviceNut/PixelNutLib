@@ -144,8 +144,9 @@ protected:
     byte segIndex;                              // assigned to this segment (from 0)
     byte disable;                               // non-zero to disable controls
 
-    uint16_t dspCount;                          // number of pixels to display
-    uint16_t dspOffset;                         // offset into output display buffer
+                                                // for logical segments only:
+    uint16_t segOffset;                         // output display buffer offset
+    uint16_t segCount;                          // number of pixels to display
   }
   PluginTrack; // defines properties for each drawing plugin
 
@@ -178,8 +179,7 @@ protected:
   void SetPropCount(void);
   void RestorePropVals(PluginTrack *pTrack, uint16_t pixCount, uint16_t degreeHue, byte pcentWhite);
 
-  // allow extending/overriding for more advanced layer/track handling
-  virtual Status NewPluginLayer(int plugin, int segnum, int start, int end);
+  Status NewPluginLayer(int plugin, int segnum);
 
   void CheckAutoTrigger(bool rollover);
 };

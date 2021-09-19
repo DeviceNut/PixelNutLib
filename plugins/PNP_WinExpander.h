@@ -18,7 +18,7 @@
 //
 // Properties Affected:
 //
-//    pixStart, pixEnd - starting/ending pixel position of the drawing window.
+//    pixStart, pixLen - starting/ending pixel position of the drawing window.
 //
 
 class PNP_WinExpander : public PixelNutPlugin
@@ -55,7 +55,7 @@ public:
     //pixelNutSupport.msgFormat(F("WinXpand: forward=%d count=%d head.tail=%d.%d"), goForward, count, headPos, tailPos);
 
     pdraw->pixStart = headPos;
-    pdraw->pixEnd = tailPos;
+    pdraw->pixLen = headPos - tailPos + 1;
 
     if (goForward) // expand
     {
