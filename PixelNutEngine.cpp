@@ -177,7 +177,7 @@ PixelNutEngine::Status PixelNutEngine::NewPluginLayer(int plugin, int segindex)
 
     // initialize track drawing properties: some must be set with user commands
     memset(&pTrack->draw, 0, sizeof(PixelNutSupport::DrawProps));
-    pTrack->draw.pixLen        = segCount  ;      // set initial window (start was memset)
+    pTrack->draw.pixLen        = segCount;        // set initial window (start was memset)
     pTrack->draw.pcentBright   = MAX_PERCENTAGE;  // start off with max brightness
     pTrack->draw.pixCount      = 1;               // default count is 1
     // default hue is 0(red), white is 0, delay is 0
@@ -199,7 +199,7 @@ PixelNutEngine::Status PixelNutEngine::NewPluginLayer(int plugin, int segindex)
         plugin, pPlugin->gettype(), indexLayerStack, indexTrackStack));
 
   // begin new plugin, but will not be drawn until triggered
-  pPlugin->begin(indexLayerStack, segCount); // TODO: return false if failed
+  pPlugin->begin(indexLayerStack, segCount);
 
   if (newtrack) // wait to do this until after any memory allocation in plugin
   {
@@ -483,10 +483,6 @@ PixelNutEngine::Status PixelNutEngine::execCmdStr(char *cmdstr)
           curlayer = indexLayerStack;
         }
         else { DBGOUT((F("Cannot add plugin #%d: layer=%d track=%d"), plugin, indexLayerStack, indexTrackStack)); }
-
-        // setup next segment limits
-        segOffset += segCount;
-        segCount = numPixels - segOffset;
       }
       else status = Status_Error_BadVal;
     }

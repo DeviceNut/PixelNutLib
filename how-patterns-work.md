@@ -54,17 +54,17 @@ N[<wordval>]        Sets repeat count used in triggering.
 O[<wordval>]        Sets min auto triggering time in seconds.
 T[<wordval>]        Causes trigger, with optional timer value.
 
+Note that pattern strings usually start with the 'P' command to clear all previous effect layers off of the stack.
+
 The 'I' command enables external triggering for the specified plugin layer. Otherwise, calls to the 'triggerForce()' library method from applications will be ignored for that effect layer.
 
 The 'Q<byteval>' command determines which drawing properties get changed when calling 'setColorProperty()', 'setCountProperty()' library methods from applications. If none of those calls are used, then this command can be ignored.
 
-The 'M[<layer>]' command is only useful for applications that build patterns on the fly with multiple calls to 'execCmdStr()', otherwise you can ignore it.
-
-Pattern strings usually start with the 'P[<layer_count>]' command (with no optional layer count) to clear all previous effect layers off of the stack. Otherwise, unless an application is building patterns incrementally, you don't need to use this.
+The 'M[<layer>]' command is only useful for applications that build patterns on the fly with multiple calls to 'execCmdStr()', or that edit patterns interactively with the user.
 
 Finally, the last command in patterns strings is usually 'G', which activates all previously defined tracks.
 
-Until this command is used, the effect layers are not "active", meaning the 'nextstep()' method of the plugins are not called when the application calls 'updateEffects()'.
+Until this command is used, the effect layers are not 'active', meaning the 'nextstep()' method of the plugins are not called when the application calls 'updateEffects()'.
 
 
 LightWave Example
@@ -72,11 +72,11 @@ LightWave Example
 
 Let's examine an effect pattern string in detail. This is the 'PATTERN_LIGHT_WAVE' pattern from the 'MyPatterns.h' file from any of the PixelNut product applications.
 
-"P E10 D60 Q7 T E101 I T E120 F250 I T G"
+'P E10 D60 Q7 T E101 I T E120 F250 I T G'
 
 1. 'P' clears the effect stack.
 
-2. 'E10' creates the LightWave drawing effect plugin. There is now one layer on the stack. This layer is also a track, as it actually draws to its own pixel array. Note that this plugin uses the pixel count drawing property to determine how many pixel long are the light waves it draws.
+2. 'E10' creates the LightWave drawing effect plugin. There is now one layer on the stack. This layer is also a track, as it actually draws to its own pixel array. Note that this plugin uses the pixel count drawing property to determine how many pixels are to be drawn.
 
 3. 'D60' sets the delay property for that track to 60 milliseconds.
 

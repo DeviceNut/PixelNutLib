@@ -31,15 +31,15 @@ public:
 
   void begin(byte id, uint16_t pixlen)
   {
-    pixCenter = pixlen >> 1; // middle of strand
     myid = id;
-
+    forceVal = 0;
     goForward = true; // start by expanding
+
+    pixCenter = pixlen >> 1; // middle of strand
     headPos = tailPos = pixCenter;
     if (!(pixlen & 1)) --headPos;
-    forceVal = 0;
 
-    // TODO: save original start/end values and use as limits
+    pixelNutSupport.msgFormat(F("WinXpand: pixlen=%d head.tail=%d.%d"), pixlen, headPos, tailPos);
   }
 
   void trigger(PixelNutHandle handle, PixelNutSupport::DrawProps *pdraw, short force)
@@ -51,11 +51,12 @@ public:
   {
     int16_t count = pdraw->pixCount;
     if (count < 4) count = 4;
-
-    //pixelNutSupport.msgFormat(F("WinXpand: forward=%d count=%d head.tail=%d.%d"), goForward, count, headPos, tailPos);
+    int len;
 
     pdraw->pixStart = headPos;
-    pdraw->pixLen = headPos - tailPos + 1;
+    pdraw->pixLen = tailPos - headPos;
+
+    //pixelNutSupport.msgFormat(F("WinXpand: forward=%d count=%d head.tail=%d.%d"), goForward, count, headPos, tailPos);
 
     if (goForward) // expand
     {
