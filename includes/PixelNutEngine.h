@@ -163,6 +163,7 @@ protected:
 
   uint16_t firstPixel = 0;                      // offset to the start of the drawing array
   bool goUpwards = true;                        // true to draw from start to end, else reverse
+  short curForce = MAX_FORCE_VALUE/2;           // saves last settings to use on new patterns
   
   uint16_t numPixels;                           // total number of pixels in output display
   byte *pDisplayPixels;                         // pointer to actual output display pixels

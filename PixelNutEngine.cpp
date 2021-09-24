@@ -192,7 +192,7 @@ PixelNutEngine::Status PixelNutEngine::NewPluginLayer(int plugin, int segindex)
   pLayer->trigCount     = -1; // forever
   pLayer->trigDelayMin  = 1;  // 1 sec min
   pLayer->trigSource    = MAX_BYTE_VALUE; // disabled
-  pLayer->trigForce     = MAX_FORCE_VALUE/2;
+  pLayer->trigForce     = curForce; // used currently set force for default
   // Note: all other trigger parameters are initialized to 0
 
   DBGOUT((F("Added plugin #%d: type=0x%02X layer=%d track=%d"),
@@ -301,6 +301,8 @@ void PixelNutEngine::CheckAutoTrigger(bool rollover)
 // external: cause trigger if enabled in track
 void PixelNutEngine::triggerForce(short force)
 {
+  curForce = force; // sets default for new patterns
+
   for (int i = 0; i <= indexLayerStack; ++i)
     if (pluginLayers[i].trigExtern)
       triggerLayer(i, force);
@@ -765,6 +767,12 @@ bool PixelNutEngine::updateEffects(void)
       short x = pix * 3;
       short y = pTrack->draw.pixStart * 3;
 
+      /*
+      byte *p = pTrack->pRedrawBuff;
+      DBGOUT((F("Input pixels:")));
+      for (int i = 0; i < numPixels; ++i)
+        DBGOUT((F("  %d.%d.%d"), *p++, *p++, *p++));
+      */
       while(true)
       {
         //DBGOUT((F(">> start.end=%d.%d pix=%d x=%d y=%d"), pixstart, pixend, pix, x, y));
@@ -814,15 +822,17 @@ bool PixelNutEngine::updateEffects(void)
             x -= 3;
           }
         }
-        y += 3;
+
         if (y >= (pixlast*3)) y = 0;
+        else y += 3;
       }
     }
 
     /*
     byte *p = pDisplayPixels;
+    DBGOUT((F("Output pixels:")));
     for (int i = 0; i < numPixels; ++i)
-      DBGOUT((F("%d.%d.%d"), *p++, *p++, *p++));
+      DBGOUT((F("  %d.%d.%d"), *p++, *p++, *p++));
     */
   }
 
