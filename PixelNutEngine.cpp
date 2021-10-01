@@ -444,18 +444,6 @@ PixelNutEngine::Status PixelNutEngine::execCmdStr(char *cmdstr)
 
     DBGOUT((F(">> Cmd=%s len=%d curtrack=%d"), cmd, strlen(cmd), curtrack));
 
-    /*
-    if (cmd[0] == 'J') // sets offset into output display of the current segment by percent
-    {
-      segOffset = (GetNumValue(cmd+1, 0, MAX_PERCENTAGE) * (numPixels-1)) / MAX_PERCENTAGE;
-      DBGOUT((F(">> segCount=%d segOffset=%d"), segCount, segOffset));
-    }
-    else if (cmd[0] == 'K') // sets number of pixels in the current segment by percent
-    {
-      segCount = ((GetNumValue(cmd+1, 0, MAX_PERCENTAGE) * (numPixels-1)) / MAX_PERCENTAGE) + 1;
-      DBGOUT((F(">> segCount=%d segOffset=%d"), segCount, segOffset));
-    }
-    */
     if (cmd[0] == 'X') // sets offset into output display of the current segment by index
     {
       int pos = GetNumValue(cmd+1, numPixels-1); // returns -1 if not within range

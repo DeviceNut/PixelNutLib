@@ -51,7 +51,6 @@ public:
   {
     int16_t count = pdraw->pixCount;
     if (count < 4) count = 4;
-    int len;
 
     pdraw->pixStart = headPos;
     pdraw->pixLen = tailPos - headPos;
