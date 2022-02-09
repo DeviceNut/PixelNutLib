@@ -82,16 +82,6 @@ Enables external triggering for a plugin layer. This means that calls to 'trigge
 
 The default value is disabled.
 
-J,K,L TODO
----------------------------------------------------------------
-
-M[<layer>]
----------------------------------------------------------------
-Sets the plugin effect layer which subsequent property commands ('B', 'C', 'D', etc.) will be applied to. Layers are numbered from 0.
-
-This can be useful to applications that build up patterns with multiple calls to 'execCmdStr()', and wish to modify properties that have been previously specified.
-
-
 N[<byteval>]
 ---------------------------------------------------------------
 Sets the repeat count used in automatic triggering (see the 'T' command) to the value <byteval>, from 0-255. If the value is missing 0 is used, which is the default setting.
@@ -104,13 +94,11 @@ O[<wordval>]
 Sets the default minimum auto triggering time in seconds for the specified plugin effect layer. If no value is specified the default of 1 second is used.
 
 
-P[<layer_count>]
+P
 ---------------------------------------------------------------
-Pops the specified number of layers off the layer stack. Without a layer count, all layers are popped off this stack.
+Pops all layers off the track/layer stacks.
 
 This is used at the beginning of all preset patterns so that previously loaded effects are removed, allowing the creation of new patterns from scratch instead of having them append commands to the previously one.
-
-This can be also useful to applications that build up patterns with multiple calls to 'execCmdStr()', and wish to selectively pop off only the top few layers. For example, 'P1' will pop off only the topmost layer.
 
 
 Q[<byteval>]
@@ -184,10 +172,3 @@ Y[<pixel_count>]
 Sets the number of pixels in a segment. Together with the X command this defines the range of a segment, after which all commands apply to only the pixels within this range.
 
 If no value is specified then the total number of pixels in the entire strip is used, which is also the initial value for this property.
-
-
-Z[<pixel>]
----------------------------------------------------------------
-Sets the offset into the strip of pixels where drawing is begun. Increasing this from 0 has the effect of shifting the pattern around the strip. Pixels are numbered from 0.
-
-If no value is specified, or the value is out of range, then 0 is used, which is also the initial value for this property.

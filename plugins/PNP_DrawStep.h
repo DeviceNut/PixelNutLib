@@ -50,7 +50,7 @@ public:
     if (++curPos >= pixLength)
     {
       curPos = 0;
-      pixelNutSupport.sendForce(handle, myid, forceVal, pdraw);
+      pixelNutSupport.sendForce(handle, myid, forceVal);
     }
   }
 

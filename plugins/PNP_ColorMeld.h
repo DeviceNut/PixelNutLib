@@ -54,7 +54,7 @@ public:
     //pixelNutSupport.msgFormat(F("ColorStep1: hue=%d.%d, white=%d.%d"), curHue, endHue, curWhite, endWhite);
 
     if ((curHue == endHue) && (curWhite == endWhite))
-      pixelNutSupport.sendForce(handle, myid, forceVal, pdraw);
+      pixelNutSupport.sendForce(handle, myid, forceVal);
 
     endHue = pdraw->degreeHue;
     endWhite = pdraw->pcentWhite;

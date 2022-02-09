@@ -66,13 +66,13 @@ public:
     {
       doDraw = false;
       curPos = 0;
-      pixelNutSupport.sendForce(handle, myid, forceVal, pdraw);
+      pixelNutSupport.sendForce(handle, myid, forceVal);
     }
     else if (forceVal > 0)
     {
       doDraw = true;
       curPos = 0;
-      pixelNutSupport.sendForce(handle, myid, forceVal, pdraw);
+      pixelNutSupport.sendForce(handle, myid, forceVal);
     }
   }
 

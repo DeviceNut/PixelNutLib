@@ -9,7 +9,7 @@
 
 extern PluginFactory *pPluginFactory; // use externally declared pointer to instance
 
-#define DEBUG_OUTPUT 1 // 1 to debug this file
+#define DEBUG_OUTPUT 0 // 1 to debug this file
 #if DEBUG_OUTPUT
 #define DBG(x) x
 #define DBGOUT(x) pixelNutSupport.msgFormat x
@@ -71,7 +71,7 @@ static int GetNumValue(char *str, int maxval)
 
 // clips values to range 0-'maxval'
 // returns 'curval' if no value is specified
-static uint16_t GetNumValue(char *str, int curval, uint16_t maxval)
+static int GetNumValue(char *str, int curval, int maxval)
 {
   if ((str == NULL) || !isdigit(*str)) return curval;
   int newval = atoi(str);
@@ -167,13 +167,13 @@ PixelNutEngine::Status PixelNutEngine::NewPluginLayer(int plugin, int segindex)
   {
     ++indexTrackStack; // create another effect track
     PluginTrack *pTrack = &pluginTracks[indexTrackStack];
+    memset(pTrack, 0, sizeof(PluginTrack));
 
-    pTrack->layer     = indexLayerStack;
-    pTrack->ctrlBits  = 0;  // allow overwriting by default
-    pTrack->disable   = 0;
+    pTrack->layer = indexLayerStack;
     pTrack->segIndex  = segindex;
     pTrack->segOffset = segOffset;
     pTrack->segCount  = segCount;
+    // Note: all other trigger parameters are initialized to 0
 
     // initialize track drawing properties: some must be set with user commands
     memset(&pTrack->draw, 0, sizeof(PixelNutSupport::DrawProps));
@@ -285,7 +285,8 @@ void PixelNutEngine::CheckAutoTrigger(bool rollover)
                 pluginLayers[i].trigDelayMin, pluginLayers[i].trigDelayRange,
                 pluginLayers[i].trigCount));
 
-      short force = ((pluginLayers[i].trigForce >= 0) ? pluginLayers[i].trigForce : random(0, MAX_FORCE_VALUE+1));
+      short force = ((pluginLayers[i].trigForce >= 0) ?
+                      pluginLayers[i].trigForce : random(0, MAX_FORCE_VALUE+1));
 
       triggerLayer(i, force);
 
@@ -309,7 +310,7 @@ void PixelNutEngine::triggerForce(short force)
 }
 
 // internal: called from plugins
-void PixelNutEngine::triggerForce(byte layer, short force, PixelNutSupport::DrawProps *pdraw)
+void PixelNutEngine::triggerForce(byte layer, short force)
 {
   for (int i = 0; i <= indexLayerStack; ++i)
     if (layer == pluginLayers[i].trigSource)
@@ -427,8 +428,6 @@ PixelNutEngine::Status PixelNutEngine::execCmdStr(char *cmdstr)
 {
   Status status = Status_Success;
 
-  int curlayer = indexLayerStack;
-  int curtrack = indexTrackStack;
   int segindex = -1; // logical segment index
 
   for (int i = 0; cmdstr[i]; ++i) // convert to upper case
@@ -440,9 +439,9 @@ PixelNutEngine::Status PixelNutEngine::execCmdStr(char *cmdstr)
   do
   {
     PixelNutSupport::DrawProps *pdraw = NULL;
-    if (curtrack >= 0) pdraw = &pluginTracks[curtrack].draw;
+    if (indexTrackStack >= 0) pdraw = &pluginTracks[indexTrackStack].draw;
 
-    DBGOUT((F(">> Cmd=%s len=%d curtrack=%d"), cmd, strlen(cmd), curtrack));
+    DBGOUT((F(">> Cmd=%s len=%d curtrack=%d"), cmd, strlen(cmd), indexTrackStack));
 
     if (cmd[0] == 'X') // sets offset into output display of the current segment by index
     {
@@ -467,43 +466,20 @@ PixelNutEngine::Status PixelNutEngine::execCmdStr(char *cmdstr)
       if (plugin >= 0)
       {
         status = NewPluginLayer(plugin, ((segindex < 0) ? 0 : segindex));
-        if (status == Status_Success)
-        {
-          curtrack = indexTrackStack;
-          curlayer = indexLayerStack;
-        }
-        else { DBGOUT((F("Cannot add plugin #%d: layer=%d track=%d"), plugin, indexLayerStack, indexTrackStack)); }
+        if (status != Status_Success)
+          { DBGOUT((F("Cannot add plugin #%d: layer=%d track=%d"), plugin, indexLayerStack, indexTrackStack)); }
       }
       else status = Status_Error_BadVal;
     }
     else if (cmd[0] == 'P') // Pop one or more plugins from the stack ('P' is same as 'P0': pop all)
     {
       clearStack();
-      curlayer = curtrack = -1; // must reset these after clear
       timePrevUpdate = 0; // redisplay pixels after being cleared
-    }
-    else if (cmd[0] == 'M') // set plugin layer to Modify ('M' uses top of stack)
-    {
-      curlayer = GetNumValue(cmd+1, indexLayerStack); // returns -1 if not within range
-      if (curlayer < 0) curlayer = indexLayerStack;
-      curtrack = pluginLayers[curlayer].track;
     }
     else if (pdraw != NULL)
     {
       switch (cmd[0])
       {
-        case 'J': // sets offset into output display of the current track by percent
-        {
-          pdraw->pixStart = (GetNumValue(cmd+1, 0, MAX_PERCENTAGE) * (numPixels-1)) / MAX_PERCENTAGE;
-          DBGOUT((F(">> Start=%d Len=%d"), pdraw->pixStart, pdraw->pixLen));
-          break;
-        }
-        case 'K': // sets number of pixels in the current track by percent
-        {
-          pdraw->pixLen = ((GetNumValue(cmd+1, 0, MAX_PERCENTAGE) * (numPixels-1)) / MAX_PERCENTAGE) + 1;
-          DBGOUT((F(">> Start=%d Len=%d"), pdraw->pixStart, pdraw->pixLen));
-          break;
-        }
         case 'U': // set the pixel direction in the current track properties ("U1" is default(up), "U" toggles value)
         {
           pdraw->goUpwards = GetBoolValue(cmd+1, pdraw->goUpwards);
@@ -553,25 +529,25 @@ PixelNutEngine::Status PixelNutEngine::execCmdStr(char *cmdstr)
           short bits = GetNumValue(cmd+1, ExtControlBit_All); // returns -1 if not within range
           if (bits >= 0)
           {
-            pluginTracks[curtrack].ctrlBits = bits;
+            pluginTracks[indexTrackStack].ctrlBits = bits;
             if (externPropMode)
             {
               if (bits & ExtControlBit_DegreeHue)
               {
                 pdraw->degreeHue = externDegreeHue;
-                DBGOUT((F("SetExtern: track=%d hue=%d"), curtrack, externDegreeHue));
+                DBGOUT((F("SetExtern: track=%d hue=%d"), indexTrackStack, externDegreeHue));
               }
 
               if (bits & ExtControlBit_PcentWhite)
               {
                 pdraw->pcentWhite = externPcentWhite;
-                DBGOUT((F("SetExtern: track=%d white=%d"), curtrack, externPcentWhite));
+                DBGOUT((F("SetExtern: track=%d white=%d"), indexTrackStack, externPcentWhite));
               }
 
               if (bits & ExtControlBit_PixCount)
               {
-                pdraw->pixCount = pixelNutSupport.mapValue(externPcentCount, 0, MAX_PERCENTAGE, 1, pluginTracks[curtrack].segCount);
-                DBGOUT((F("SetExtern: track=%d count=%d"), curtrack, pdraw->pixCount));
+                pdraw->pixCount = pixelNutSupport.mapValue(externPcentCount, 0, MAX_PERCENTAGE, 1, pluginTracks[indexTrackStack].segCount);
+                DBGOUT((F("SetExtern: track=%d count=%d"), indexTrackStack, pdraw->pixCount));
               }
 
               pixelNutSupport.makeColorVals(pdraw); // create RGB values
@@ -582,53 +558,53 @@ PixelNutEngine::Status PixelNutEngine::execCmdStr(char *cmdstr)
         case 'I': // set external triggering enable ('I0' to disable, "I" is same as "I1")
         {
           if (isdigit(*(cmd+1))) // there is a value after "I"
-               pluginLayers[curlayer].trigExtern = GetBoolValue(cmd+1, false);
-          else pluginLayers[curlayer].trigExtern = true;
+               pluginLayers[indexLayerStack].trigExtern = GetBoolValue(cmd+1, false);
+          else pluginLayers[indexLayerStack].trigExtern = true;
           break;
         }
         case 'A': // Assign effect layer as trigger source for current plugin layer ("A" is same as "A0", "A255" disables)
         {
-          pluginLayers[curlayer].trigSource = GetNumValue(cmd+1, 0, MAX_BYTE_VALUE); // clip to 0-MAX_BYTE_VALUE
-          DBGOUT((F("Triggering assigned to layer %d"), pluginLayers[curlayer].trigSource));
+          pluginLayers[indexLayerStack].trigSource = GetNumValue(cmd+1, 0, MAX_BYTE_VALUE); // clip to 0-MAX_BYTE_VALUE
+          DBGOUT((F("Triggering assigned to layer %d"), pluginLayers[indexLayerStack].trigSource));
           break;
         }
         case 'F': // set Force value to be used by trigger ("F" causes random force to be used)
         {
           if (isdigit(*(cmd+1))) // there is a value after "F"
-               pluginLayers[curlayer].trigForce = GetNumValue(cmd+1, 0, MAX_FORCE_VALUE); // clip to 0-MAX_FORCE_VALUE
-          else pluginLayers[curlayer].trigForce = -1; // get random value each time
+               pluginLayers[indexLayerStack].trigForce = GetNumValue(cmd+1, 0, MAX_FORCE_VALUE); // clip to 0-MAX_FORCE_VALUE
+          else pluginLayers[indexLayerStack].trigForce = -1; // get random value each time
           break;
         }
         case 'N': // Auto trigger counter ("N" or "N0" means forever, same as not specifying at all)
         {         // (this count does NOT include the initial trigger from the "T" command)
-          pluginLayers[curlayer].trigCount = GetNumValue(cmd+1, 0, MAX_WORD_VALUE); // clip to 0-MAX_WORD_VALUE
-          if (!pluginLayers[curlayer].trigCount) pluginLayers[curlayer].trigCount = -1;
+          pluginLayers[indexLayerStack].trigCount = GetNumValue(cmd+1, 0, MAX_WORD_VALUE); // clip to 0-MAX_WORD_VALUE
+          if (!pluginLayers[indexLayerStack].trigCount) pluginLayers[indexLayerStack].trigCount = -1;
           break;
         }
         case 'O': // sets minimum auto-triggering time ("O", "O0", "O1" all get set to default(1sec))
         {
           uint16_t min = GetNumValue(cmd+1, 1, MAX_WORD_VALUE); // clip to 0-MAX_WORD_VALUE
-          pluginLayers[curlayer].trigDelayMin = min ? min : 1;
+          pluginLayers[indexLayerStack].trigDelayMin = min ? min : 1;
           break;
         }
         case 'T': // Trigger the current plugin layer, either once ("T") or with timer ("T<n>")
         {
-          short force = pluginLayers[curlayer].trigForce;
+          short force = pluginLayers[indexLayerStack].trigForce;
           if (force < 0) force = random(0, MAX_FORCE_VALUE+1);
 
           if (isdigit(*(cmd+1))) // there is a value after "T"
           {
-            pluginLayers[curlayer].trigDelayRange = GetNumValue(cmd+1, 0, MAX_WORD_VALUE); // clip to 0-MAX_WORD_VALUE
-            pluginLayers[curlayer].trigTimeMsecs = pixelNutSupport.getMsecs() +
-                (1000 * random(pluginLayers[curlayer].trigDelayMin,
-                              (pluginLayers[curlayer].trigDelayMin + pluginLayers[curlayer].trigDelayRange+1)));
+            pluginLayers[indexLayerStack].trigDelayRange = GetNumValue(cmd+1, 0, MAX_WORD_VALUE); // clip to 0-MAX_WORD_VALUE
+            pluginLayers[indexLayerStack].trigTimeMsecs = pixelNutSupport.getMsecs() +
+                (1000 * random(pluginLayers[indexLayerStack].trigDelayMin,
+                              (pluginLayers[indexLayerStack].trigDelayMin + pluginLayers[indexLayerStack].trigDelayRange+1)));
 
-            DBGOUT((F("AutoTriggerSet: layer=%d delay=%u+%u count=%d force=%d"), curlayer,
-                      pluginLayers[curlayer].trigDelayMin, pluginLayers[curlayer].trigDelayRange,                          
-                      pluginLayers[curlayer].trigCount, force));
+            DBGOUT((F("AutoTriggerSet: layer=%d delay=%u+%u count=%d force=%d"), indexLayerStack,
+                      pluginLayers[indexLayerStack].trigDelayMin, pluginLayers[indexLayerStack].trigDelayRange,
+                      pluginLayers[indexLayerStack].trigCount, force));
           }
 
-          triggerLayer(curlayer, force); // always trigger immediately
+          triggerLayer(indexLayerStack, force); // always trigger immediately
           break;
         }
         case 'G': // Go: activate newly added effect tracks

@@ -104,7 +104,7 @@ public:
     int count = pixelNutComets.cometHeadDraw(cdata, myid, pdraw, handle, pixLength);
     if (count != headCount)
     {
-      pixelNutSupport.sendForce(handle, myid, forceVal, pdraw);
+      pixelNutSupport.sendForce(handle, myid, forceVal);
       headCount = count;
     }
   }

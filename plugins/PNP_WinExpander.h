@@ -62,7 +62,7 @@ public:
       if (headPos <= (pixCenter - (count >> 1)))
       {
         goForward = false;
-        pixelNutSupport.sendForce(handle, myid, forceVal, pdraw);
+        pixelNutSupport.sendForce(handle, myid, forceVal);
       }
     }
     else // contract
@@ -70,7 +70,7 @@ public:
       if ((headPos == pixCenter) || (tailPos == pixCenter))
       {
         goForward = true;
-        pixelNutSupport.sendForce(handle, myid, -forceVal, pdraw);
+        pixelNutSupport.sendForce(handle, myid, -forceVal);
       }
     }
 

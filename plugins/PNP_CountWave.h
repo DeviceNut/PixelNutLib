@@ -74,12 +74,12 @@ public:
     if (angleNext > RADIANS_PER_WAVE)
     {
       angleNext -= RADIANS_PER_WAVE;
-      pixelNutSupport.sendForce(handle, myid, forceVal, pdraw);
+      pixelNutSupport.sendForce(handle, myid, forceVal);
     }
     else if (angleNext < 0)
     {
       angleNext += RADIANS_PER_WAVE;
-      pixelNutSupport.sendForce(handle, myid, forceVal, pdraw);
+      pixelNutSupport.sendForce(handle, myid, forceVal);
     }
   }
 

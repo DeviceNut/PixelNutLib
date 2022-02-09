@@ -86,7 +86,7 @@ public:
       if (tailpos >= (pixLength-1))
       {
         goForward = false;
-        pixelNutSupport.sendForce(handle, myid, forceVal, pdraw);
+        pixelNutSupport.sendForce(handle, myid, forceVal);
       }
     }
     else
@@ -96,7 +96,7 @@ public:
       if (headPos <= 0)
       {
         goForward = true;
-        pixelNutSupport.sendForce(handle, myid, -forceVal, pdraw);
+        pixelNutSupport.sendForce(handle, myid, -forceVal);
       }
     }
 

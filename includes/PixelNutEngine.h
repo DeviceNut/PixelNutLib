@@ -50,16 +50,16 @@ public:
   void setMaxBrightness(byte percent) { pcentBright = percent; }
   byte getMaxBrightness() { return pcentBright; }
 
-  void setDelayOffset(byte msecs) { delayOffset = msecs; }
+  void setDelayOffset(int8_t msecs) { delayOffset = msecs; }
   int8_t getDelayOffset() { return delayOffset; }
 
-  void setFirstPosition(int16_t pixpos)
+  void setFirstPosition(uint16_t pixpos)
   {
     if (pixpos < 0) pixpos = 0;
     if (numPixels <= pixpos) pixpos = numPixels-1;
     firstPixel = pixpos;
   }
-  int16_t getFirstPosition() { return firstPixel; }
+  uint16_t getFirstPosition() { return firstPixel; }
 
   // Sets the color properties for tracks that have set either the ExtControlBit_DegreeHue
   // or ExtControlBit_PcentWhite bits. These values can be individually controlled. The
@@ -88,7 +88,7 @@ public:
   void triggerForce(short force);
 
   // Used by plugins to trigger based on the effect layer, enabled by the "A" command.
-  void triggerForce(byte layer, short force, PixelNutSupport::DrawProps *pdraw);
+  void triggerForce(byte layer, short force);
 
   // Called by the above and DoTrigger(), CheckAutoTrigger(), allows override
   virtual void triggerLayer(byte layer, short force);
@@ -110,14 +110,14 @@ public:
 protected:
 
   byte pcentBright = MAX_PERCENTAGE;            // max percent brightness to apply to each effect
-  int8_t delayOffset = 0;                         // additional delay to add to each effect (msecs)
+  int8_t delayOffset = 0;                       // additional delay to add to each effect (msecs)
                                                 // this is kept to be +/- 'DELAY_RANGE'
 
   typedef struct ATTR_PACKED // 18-20 bytes
   {
-                                                // random auto triggering information:
+                                                // auto triggering information:
     uint32_t trigTimeMsecs;                     // time of next trigger in msecs (0 if not set yet)
-    uint16_t trigCount;                         // number of times to trigger (-1 to repeat forever)
+    int16_t trigCount;                          // number of times to trigger (-1 to repeat forever)
     uint16_t trigDelayMin;                      // min amount of delay before next trigger in seconds
     uint16_t trigDelayRange;                    // range of delay values possible (min...min+range)
 
@@ -132,7 +132,7 @@ protected:
   }
   PluginLayer; // defines each layer of effect plugin
 
-  typedef struct ATTR_PACKED // 28-30 bytes
+  typedef struct ATTR_PACKED // 30-32 bytes
   {
     uint32_t msTimeRedraw;                      // time of next redraw of plugin in msecs
     byte *pRedrawBuff;                          // allocated buffer or NULL for postdraw effects
@@ -141,6 +141,8 @@ protected:
 
     byte layer;                                 // index into layer stack to redraw effect
     byte ctrlBits;                              // bits to control setting property values
+
+    // used for logical segment control:
     byte segIndex;                              // assigned to this segment (from 0)
     byte disable;                               // non-zero to disable controls
 

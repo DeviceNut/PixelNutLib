@@ -38,12 +38,11 @@ H<degrees>            color hue degrees
 W<percent>            whiteness percent
 B<percent>            brightness percent.
 C<percent>            pixel count percent
-D<byteval>            delay in milliseconds
+D<byteval>            delay in milliseconds (can be negative)
 U[0,1]                direction up/down
 V[0,1]                layer pixel value OR'ed or overwritten
 X<pixel>              defines starting pixel of a segment
 Y<pixel_count>        sets number of pixels in the segment
-Z<pixel>              sets first pixel to starting drawing
 
 
 These commands control and affect how triggering works for one particular plugin layer:
@@ -59,8 +58,6 @@ Note that pattern strings usually start with the 'P' command to clear all previo
 The 'I' command enables external triggering for the specified plugin layer. Otherwise, calls to the 'triggerForce()' library method from applications will be ignored for that effect layer.
 
 The 'Q<byteval>' command determines which drawing properties get changed when calling 'setColorProperty()', 'setCountProperty()' library methods from applications. If none of those calls are used, then this command can be ignored.
-
-The 'M[<layer>]' command is only useful for applications that build patterns on the fly with multiple calls to 'execCmdStr()', or that edit patterns interactively with the user.
 
 Finally, the last command in patterns strings is usually 'G', which activates all previously defined tracks.
 
