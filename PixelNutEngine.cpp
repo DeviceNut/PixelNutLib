@@ -1,6 +1,6 @@
 // PixelNut Engine Class Implementation
 /*
-    Copyright (c) 2015-2020, Greg de Valois
+    Copyright (c) 2015-2024, Greg de Valois
     Software License Agreement (BSD License)
     See license.txt for the terms of this license.
 */
@@ -22,15 +22,13 @@ extern PluginFactory *pPluginFactory; // use externally declared pointer to inst
 // Constructor: initialize class variables, allocate memory for layer/track stacks
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PixelNutEngine::PixelNutEngine(byte *ptr_pixels, uint16_t num_pixels,
-                               uint16_t first_pixel, bool goupwards,
+PixelNutEngine::PixelNutEngine(byte *ptr_pixels, uint16_t num_pixels, bool goupwards,
                                short num_layers, short num_tracks)
 {
   // NOTE: cannot call DBGOUT here if statically constructed
 
   pDisplayPixels  = ptr_pixels;
   numPixels       = num_pixels;
-  firstPixel      = first_pixel;
   goUpwards       = goupwards;
   segOffset       = 0;
   segCount        = num_pixels;
@@ -719,8 +717,8 @@ bool PixelNutEngine::updateEffects(void)
         continue;
 
       short pixlast = numPixels-1;
-      short pixstart = firstPixel + pTrack->segOffset + pTrack->draw.pixStart;
-      //DBGOUT((F("%d PixStart: %d == %d+%d+%d"), pTrack->draw.goUpwards, pixstart, firstPixel, pTrack->segOffset, pTrack->draw.pixStart));
+      short pixstart = pTrack->segOffset + pTrack->draw.pixStart;
+      //DBGOUT((F("%d PixStart: %d == %d+%d"), pTrack->draw.goUpwards, pixstart, pTrack->segOffset, pTrack->draw.pixStart));
       if (pixstart > pixlast) pixstart -= (pixlast+1);
 
       short pixend = pixstart + pTrack->draw.pixLen - 1;

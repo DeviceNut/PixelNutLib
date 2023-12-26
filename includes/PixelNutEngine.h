@@ -2,7 +2,7 @@
 // PixelNut Plugin Factory Class
 // Uses the PixelNut Support Interface.
 /*
-    Copyright (c) 2015-2021, Greg de Valois
+    Copyright (c) 2015-2024, Greg de Valois
     Software License Agreement (BSD License)
     See license.txt for the terms of this license.
 */
@@ -43,8 +43,7 @@ public:
   // the first pixel to start drawing and the direction of drawing,
   // and the maximum effect layers and tracks that can be supported.
   // num_layers/tracks *must not* be greater than MAX_TRACK_LAYER.
-  PixelNutEngine(byte *ptr_pixels, uint16_t num_pixels,
-                 uint16_t first_pixel=0, bool goupwards=true,
+  PixelNutEngine(byte *ptr_pixels, uint16_t num_pixels, bool goupwards=true,
                  short num_layers=4, short num_tracks=3);
 
   void setMaxBrightness(byte percent) { pcentBright = percent; }
@@ -52,14 +51,6 @@ public:
 
   void setDelayOffset(int8_t msecs) { delayOffset = msecs; }
   int8_t getDelayOffset() { return delayOffset; }
-
-  void setFirstPosition(uint16_t pixpos)
-  {
-    if (pixpos < 0) pixpos = 0;
-    if (numPixels <= pixpos) pixpos = numPixels-1;
-    firstPixel = pixpos;
-  }
-  uint16_t getFirstPosition() { return firstPixel; }
 
   // Sets the color properties for tracks that have set either the ExtControlBit_DegreeHue
   // or ExtControlBit_PcentWhite bits. These values can be individually controlled. The
@@ -163,7 +154,6 @@ protected:
 
   uint32_t timePrevUpdate = 0;                  // time of previous call to update
 
-  uint16_t firstPixel = 0;                      // offset to the start of the drawing array
   bool goUpwards = true;                        // true to draw from start to end, else reverse
   short curForce = MAX_FORCE_VALUE/2;           // saves last settings to use on new patterns
   
