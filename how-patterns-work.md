@@ -109,10 +109,10 @@ Execution Errors
 
 Errors cause the remainder of the command string to be ignored, with the PixelNut Engine method 'execCmdStr()' returning something other than 'Status_Success' (see 'PixelNutEngine.h').
 
-1. The command is not listed above. Returns 'Status_BadCmd'.
+1. The command is not listed above. Returns 'Status_Error_BadCmd'.
 
-2. No layers and the command is not 'E': returns 'Status_BadCmd'.
+2. No layers and the command is not 'E': returns 'Status_Error_BadCmd'.
 
-3. No layers and the plugin specified in the 'E' command is not a 'ReDraw' type of plugin: returns 'Status_BadCmd'.
+3. No layers and the plugin specified in the 'E' command is not a 'ReDraw' type of plugin: returns 'Status_Error_BadCmd'.
 
-4. If the <plugin> value for the 'E' command is not associated with a plugin effect: returns 'Status_BadVal'.D
+4. If the <plugin> value for the 'E' command is not associated with a plugin effect: returns 'Status_Error_BadVal'.D

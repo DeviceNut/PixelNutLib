@@ -478,6 +478,18 @@ PixelNutEngine::Status PixelNutEngine::execCmdStr(char *cmdstr)
     {
       switch (cmd[0])
       {
+        case 'J': // sets offset into output display of the current track by percent
+        {
+          pdraw->pixStart = (GetNumValue(cmd+1, 0, MAX_PERCENTAGE) * (numPixels-1)) / MAX_PERCENTAGE;
+          DBGOUT((F(">> Start=%d Len=%d"), pdraw->pixStart, pdraw->pixLen));
+          break;
+        }
+        case 'K': // sets number of pixels in the current track by percent
+        {
+          pdraw->pixLen = ((GetNumValue(cmd+1, 0, MAX_PERCENTAGE) * (numPixels-1)) / MAX_PERCENTAGE) + 1;
+          DBGOUT((F(">> Start=%d Len=%d"), pdraw->pixStart, pdraw->pixLen));
+          break;
+        }
         case 'U': // set the pixel direction in the current track properties ("U1" is default(up), "U" toggles value)
         {
           pdraw->goUpwards = GetBoolValue(cmd+1, pdraw->goUpwards);
